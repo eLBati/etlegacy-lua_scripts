@@ -273,7 +273,7 @@ function readRecords(file)
 		return(0)
 	end
 	local guid,multi,mega,ultra,monster,ludic,kills,name,first,last
-	local now = tonumber(os.date("%s"))
+	local now = tonumber(os.time())
 	local exp_diff = now - records_expire
 	local filestr = et.trap_FS_Read( fd, len )
 	et.trap_FS_FCloseFile( fd )
@@ -452,12 +452,12 @@ function et_Obituary(victim, killer, mod)
             if srv_record and guid ~= "" then
         	-- guid;multi;mega;ultra;monster;ludicrous;revive;nick;firstseen;lastseen
                 if type(srv_records[guid]) ~= "table" then
-                    srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.date("%s")), 0 }
+                    srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.time()), 0 }
                 elseif #(srv_records[guid]) ~= 9 then
-                    srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.date("%s")), 0 }
+                    srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.time()), 0 }
                 end
                 srv_records[guid][6] = srv_records[guid][6] + 1
-                srv_records[guid][9] = tonumber(os.date("%s"))
+                srv_records[guid][9] = tonumber(os.time())
                 if record_last_nick or (srv_records[guid][7] == nil) then
                     srv_records[guid][7] = playerName(killer)
                 end
@@ -518,11 +518,11 @@ function checkKSpreeEnd(id, killer, normal_kill)
         if kmax_id == id and killing_sprees[id] == kmax_spree then
             local max = findMaxKSpree()
             if #(max) == 3 and kmax_spree > max[1] then
-                alltime_stats[mapName()] = { kmax_spree, os.date("%s"), m_name }
+                alltime_stats[mapName()] = { kmax_spree, os.time(), m_name }
                 kmap_record = true
                 krecord     = true
             elseif #(max) == 0 then
-                alltime_stats[mapName()] = { kmax_spree, os.date("%s"), m_name }
+                alltime_stats[mapName()] = { kmax_spree, os.time(), m_name }
                 kmap_record = true
                 krecord     = true
             end
