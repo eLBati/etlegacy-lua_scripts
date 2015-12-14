@@ -251,7 +251,7 @@ function readStats(file)
 	local filestr = et.trap_FS_Read( fd, len )
 	et.trap_FS_FCloseFile( fd )
 	local map, frags, zwiebel, naim
-	for map, frags, zwiebel, naim in string.gfind(filestr,"[^%#]([%_%w]*)%;(%d*)%;(%d*)%;([^%\n]*)") do
+	for map, frags, zwiebel, naim in string.gmatch(filestr,"[^%#]([%_%w]*)%;(%d*)%;(%d*)%;([^%\n]*)") do
 		alltime_stats[map] = {
 						     	tonumber(frags),
 						     	tonumber(zwiebel),
@@ -277,7 +277,7 @@ function readRecords(file)
 	local exp_diff = now - records_expire
 	local filestr = et.trap_FS_Read( fd, len )
 	et.trap_FS_FCloseFile( fd )
-	for guid,multi,mega,ultra,monster,ludic,kills,name,first,last in string.gfind(filestr,
+	for guid,multi,mega,ultra,monster,ludic,kills,name,first,last in string.gmatch(filestr,
 				"[^%#](%x+)%;(%d*)%;(%d*)%;(%d*)%;(%d*)%;(%d*)%;(%d*)%;([^;]*)%;(%d*)%;([^%\n]*)") do
 		local seen = tonumber(last)
 		if (records_expire == 0) or (exp_diff < seen) then
@@ -853,7 +853,7 @@ end
 function ParseString(inputString)
 	local i = 1
 	local t = {}
-	for w in string.gfind(inputString, "([^%s]+)%s*") do
+	for w in string.gmatch(inputString, "([^%s]+)%s*") do
 		t[i]=w
 		i=i+1
 	end
