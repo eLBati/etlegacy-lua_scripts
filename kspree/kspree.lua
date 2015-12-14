@@ -555,7 +555,7 @@ end
 
 function checkKSprees(id)
     if killing_sprees[id] ~= 0 then
-        if math.mod(killing_sprees[id], 5) == 0 then
+        if math.fmod(killing_sprees[id], 5) == 0 then
             local spree_id = killing_sprees[id]
             local spree = K_Sprees[killing_sprees[id]]
             if killing_sprees[id] > 35 then
@@ -614,7 +614,7 @@ function checkKSprees(id)
 end
 
 function et_RunFrame(levelTime)
-	if math.mod(levelTime, 500) ~= 0 then return end
+	if math.fmod(levelTime, 500) ~= 0 then return end
 	local ltm = et.trap_Milliseconds()
 	gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
 	if gamestate == 0 then
