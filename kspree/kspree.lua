@@ -314,7 +314,7 @@ function et_Print(text)
     			end
                 local longest = ""
                 local max     = findMaxKSpree()
-                if table.getn(max) == 3 then
+                if #(max) == 3 then
                     if kmap_record then
                         longest = " ^"..kspree_color.."This is a New map record!"
                         saveStats(kspree_cfg, alltime_stats)
@@ -417,7 +417,7 @@ function et_Obituary(victim, killer, mod)
 
     		if not allow_spree_sk then
             	local max = findMaxKSpree()
-            	if table.getn(max) == 3 then
+            	if #(max) == 3 then
             		if killing_sprees[victim] > max[1] and kspree_announce then
             		sayClients(kspree_pos, string.format("^%sWhat a pity! ^7%s^%s killed himself. This would have been a new ^qspree record ^%s!",
             						kspree_color, playerName(victim), kspree_color, kspree_color))
@@ -453,7 +453,7 @@ function et_Obituary(victim, killer, mod)
         	-- guid;multi;mega;ultra;monster;ludicrous;revive;nick;firstseen;lastseen
                 if type(srv_records[guid]) ~= "table" then
                     srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.date("%s")), 0 }
-                elseif table.getn(srv_records[guid]) ~= 9 then
+                elseif #(srv_records[guid]) ~= 9 then
                     srv_records[guid] = { 0, 0, 0, 0, 0, 0, playerName(killer), tonumber(os.date("%s")), 0 }
                 end
                 srv_records[guid][6] = srv_records[guid][6] + 1
@@ -517,11 +517,11 @@ function checkKSpreeEnd(id, killer, normal_kill)
 
         if kmax_id == id and killing_sprees[id] == kmax_spree then
             local max = findMaxKSpree()
-            if table.getn(max) == 3 and kmax_spree > max[1] then
+            if #(max) == 3 and kmax_spree > max[1] then
                 alltime_stats[mapName()] = { kmax_spree, os.date("%s"), m_name }
                 kmap_record = true
                 krecord     = true
-            elseif table.getn(max) == 0 then
+            elseif #(max) == 0 then
                 alltime_stats[mapName()] = { kmax_spree, os.date("%s"), m_name }
                 kmap_record = true
                 krecord     = true
@@ -722,7 +722,7 @@ function et_ClientCommand(id, command)
         if kspree_cmd_enabled and et.trap_Argv(1) == kspree_cmd then
             local map_msg = ""
             local map_max = findMaxKSpree()
-            if table.getn(map_max) ~= 3 then
+            if #(map_max) ~= 3 then
                 map_max = { 0, 0, nil }
             end
             if map_max[3] ~= nil then
@@ -782,7 +782,7 @@ function et_ClientCommand(id, command)
 	if et.trap_Argv(0) == "vsay" then
 		if not great_shot then return end
 		local vsaystring = ParseString(et.trap_Argv(1))		
-		if table.getn(vsaystring) < 2 and last_killer[id] ~= nil and string.lower(vsaystring[1]) == "greatshot" then
+		if #(vsaystring) < 2 and last_killer[id] ~= nil and string.lower(vsaystring[1]) == "greatshot" then
 			if (et.trap_Milliseconds() - tonumber(last_killer[id][2])) < great_shot_time then
 				local vsaymessage = "Great shot, ^7"..last_killer[id][1].."^r!"
 
@@ -801,7 +801,7 @@ function et_ClientCommand(id, command)
 	if et.trap_Argv(0) == "vsay_team" then
 		if not sorry then return end
 		local vsaystring = ParseString(et.trap_Argv(1))		
-		if table.getn(vsaystring) < 2 and last_tk[id] ~= nil and string.lower(vsaystring[1]) == "sorry" then
+		if #(vsaystring) < 2 and last_tk[id] ~= nil and string.lower(vsaystring[1]) == "sorry" then
 			if (et.trap_Milliseconds() - tonumber(last_tk[id][2])) < sorry_time then
 			    local vsaymessage = "^5Sorry, ^7"..last_tk[id][1].."^5!"
 				local ppos = et.gentity_get(id,"r.currentOrigin")
@@ -881,7 +881,7 @@ function statsMessage(id)
             end
 		end
 		local whathedid = ""
-		if table.getn(stats_arr) ~= 0 then
+		if #(stats_arr) ~= 0 then
 			table.insert(stats_arr, 1, string.format("^7 has made:"))
 			table.insert(stats_arr, string.format("^7and"))
 			whathedid = table.concat(stats_arr, " ")
@@ -960,7 +960,7 @@ function recordMessage ()
                                   kill_rec[2], kill_rec[1]))
     end
 
-    if table.getn(rec_arr) ~= 0 then
+    if #(rec_arr) ~= 0 then
         local oldest = 2147483647 -- 2^31 - 1
         for guid, arr in pairs(srv_records) do
                 if arr[8] < oldest then
