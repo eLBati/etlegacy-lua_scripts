@@ -190,7 +190,7 @@ end
 
 -- printf wrapper for debugging
 function et.G_Printf(...)
-    if arg then et.G_Print(string.format(string.unpack(arg))) end
+    if arg then et.G_Print(string.format(table.unpack(arg))) end
 end
 
 function et.G_ClientSound(clientnum, soundfile)
