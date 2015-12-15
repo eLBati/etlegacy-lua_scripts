@@ -180,13 +180,13 @@ function et_ClientBegin(cno)
 
 		--et.G_Print ("Loading XP from database: " .. player.xp_battlesense .. " | " .. player.xp_engineering .. " | " .. player.xp_medic .. " | " .. player.xp_fieldops .. " | " .. player.xp_lightweapons .. " | " .. player.xp_heavyweapons .. " | " .. player.xp_covertops .. "\n\n")
 		
-		et.G_XP_Set (cno, player.xp_battlesense, BATTLESENSE, 0) 
-		et.G_XP_Set (cno, player.xp_engineering, ENGINEERING, 0) 
-		et.G_XP_Set (cno, player.xp_medic, MEDIC, 0) 
-		et.G_XP_Set (cno, player.xp_fieldops, FIELDOPS, 0) 
-		et.G_XP_Set (cno, player.xp_lightweapons, LIGHTWEAPONS, 0) 
-		et.G_XP_Set (cno, player.xp_heavyweapons, HEAVYWEAPONS, 0) 
-		et.G_XP_Set (cno, player.xp_covertops, COVERTOPS, 0)
+		et.G_XP_Set (cno, player.xp_battlesense, BATTLESENSE, 0.0) 
+		et.G_XP_Set (cno, player.xp_engineering, ENGINEERING, 0.0) 
+		et.G_XP_Set (cno, player.xp_medic, MEDIC, 0.0) 
+		et.G_XP_Set (cno, player.xp_fieldops, FIELDOPS, 0.0) 
+		et.G_XP_Set (cno, player.xp_lightweapons, LIGHTWEAPONS, 0.0) 
+		et.G_XP_Set (cno, player.xp_heavyweapons, HEAVYWEAPONS, 0.0) 
+		et.G_XP_Set (cno, player.xp_covertops, COVERTOPS, 0.0)
 		
 		et.G_Print (name .. "'s current XP levels:\n")
 		for id, skill in pairs(skills) do 
