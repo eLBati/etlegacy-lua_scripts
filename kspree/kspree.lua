@@ -1,5 +1,5 @@
 --
--- kspree.lua
+-- KSpree
 --
 -- $Id: kspree.lua 239 2007-05-07 17:46:53Z bennz $
 -- $Date: 2007-05-07 19:46:53 +0200 (Mon, 07 May 2007) $
@@ -7,7 +7,7 @@
 --
 version = "1.0.4"
 
--- kspree.lua logic "stolen" from Vetinari's rspree.lua, who "stole" from etadmin_mod.pl and so on
+-- KSpree logic is based on Vetinari's rspree.lua which derives from etadmin_mod.pl
 -- CONSOLE COMMANDS : ksprees, kspeesall, kspreerecords
 -- added: new readRecords() function
 -- added: First Blood + Last Blood
@@ -141,13 +141,12 @@ client_msg = {}
 kteams = { [0]="Spectator", [1]="Axis", [2]="Allies", [3]="Unknown", }
 
 function et_InitGame(levelTime, randomSeed, restart)
-
 	local func_start = et.trap_Milliseconds()
-    et.RegisterModname("kspree.lua "..version.." "..et.FindSelf())
-    sv_maxclients = tonumber(et.trap_Cvar_Get("sv_maxclients"))
+    et.RegisterModname("KSpree "..version.." "..et.FindSelf())
+    maxclients = tonumber(et.trap_Cvar_Get("sv_maxclients"))
 
     local i = 0
-    for i=0, sv_maxclients-1 do
+    for i=0, maxclients-1 do
         killing_sprees[i] = 0
         kmulti[i] = { [1]=0, [2]=0, }
         client_msg[i] = false
@@ -157,27 +156,26 @@ function et_InitGame(levelTime, randomSeed, restart)
     end
 
     i = readStats(kspree_cfg)
-    et.G_Printf("kspree.lua: loaded %d alltime stats from %s\n", i, kspree_cfg)
+    et.G_Printf("KSpree: loaded %d alltime stats from %s\n", i, kspree_cfg)
 
     if srv_record then
         i = readRecords(record_cfg)
-        et.G_Printf("kspree.lua: loaded %d alltime records from %s\n", i, record_cfg)
+        et.G_Printf("KSpree: loaded %d alltime records from %s\n", i, record_cfg)
     end
 
-    et.trap_SendConsoleCommand(et.EXEC_NOW,"sets KSpree_version "..version)
-    et.G_Printf("bennz's kspree.lua version "..version.." activated...\n")
-	et.G_Printf("kspree.lua: startup: %d ms\n", et.trap_Milliseconds() - func_start)
+    et.G_Printf("KSpree v"..version.." activated...\n")
+	et.G_Printf("KSpree: startup: %d ms\n", et.trap_Milliseconds() - func_start)
 end
 
 function sayClients(pos, msg)
-    --et.G_Printf("kspree.lua: sayClients('%s', '%s')\n", pos, msg)
+    --et.G_Printf("KSpree: sayClients('%s', '%s')\n", pos, msg)
     --et.trap_SendServerCommand(-1, pos.." \""..msg.."^7\"\n")
     local message = string.format("%s \"%s^7\"", pos, msg)
     for id, msg_ok in pairs(client_msg) do
             if msg_ok then
                 et.trap_SendServerCommand(id, message)
             end
-        end
+    end
 end
 
 function soundClients(which_sound)
@@ -185,7 +183,7 @@ function soundClients(which_sound)
             if msg_ok then
                 et.G_ClientSound(id, which_sound)
             end
-        end
+    end
 end
 
 -- printf wrapper for debugging
@@ -203,14 +201,14 @@ function mapName ()
     return(string.lower(et.trap_Cvar_Get("mapname")))
 end
 
-function teamName (t)
+function teamName(t)
     if t < 0 or t > 3 then
         t = 3
     end
     return(kteams[t])
 end
 
-function getGuid (id)
+function getGuid(id)
     return(string.lower(et.Info_ValueForKey(et.trap_GetUserinfo(id), "cl_guid")))
 end
 
@@ -229,7 +227,7 @@ end
 function saveStats(file, list)
     local fd, len = et.trap_FS_FOpenFile(file, et.FS_WRITE)
     if len == -1 then
-        et.G_Printf("kspree.lua: failed to open %s", file)
+        et.G_Printf("KSpree: failed to open %s", file)
         return(0)
     end
     local head = string.format("# %s, written %s\n", file, os.date())
@@ -245,7 +243,7 @@ function readStats(file)
 	local fd,len = et.trap_FS_FOpenFile( file, et.FS_READ )
     local count      = 0
 	if len == -1 then
-		et.G_Printf("kspree.lua: no killingspree.txt\n")
+		et.G_Printf("KSpree: no killingspree.txt\n")
 		return(0)
 	end
 	local filestr = et.trap_FS_Read( fd, len )
@@ -268,8 +266,8 @@ function readRecords(file)
 	local fd,len = et.trap_FS_FOpenFile( file, et.FS_READ )
     local count      = 0
 	if len == -1 then
-		et.G_Printf("kspree.lua: no Spree Records \n")
-		et.G_Printf("rspree.lua: readRecords(): %d ms\n", et.trap_Milliseconds() - func_start)
+		et.G_Printf("KSpree: no Spree Records \n")
+		et.G_Printf("KSpree: readRecords(): %d ms\n", et.trap_Milliseconds() - func_start)
 		return(0)
 	end
 	local guid,multi,mega,ultra,monster,ludic,kills,name,first,last
@@ -297,7 +295,7 @@ function readRecords(file)
 	end
 
 
-    et.G_Printf("kspree.lua: readRecords(): %d ms\n", et.trap_Milliseconds() - func_start)
+    et.G_Printf("KSpree: readRecords(): %d ms\n", et.trap_Milliseconds() - func_start)
 	return(count)
 end
 
@@ -339,7 +337,7 @@ function et_Print(text)
 
     if text == "Exit: Timelimit hit.\n" or text == "Exit: Wolf EndRound.\n" then
         kendofmap = true
-        for i = 0, sv_maxclients-1 do
+        for i = 0, maxclients-1 do
             if killing_sprees[i] > 0 then
                 checkKSpreeEnd(i, 1022, true)
             end
@@ -352,7 +350,7 @@ function et_Print(text)
     end
 end
 
-function checkMultiKill (id)
+function checkMultiKill(id)
     local lvltime = et.trap_Milliseconds()
     local guid = getGuid(id)
     	if (lvltime - kmulti[id][1]) < 3000 then
@@ -537,7 +535,7 @@ function checkKSpreeEnd(id, killer, normal_kill)
                 end
 
             else
-                if krecord and killer <= sv_maxclients then
+                if krecord and killer <= maxclients then
                     sayClients(kspree_pos, string.format("%s^%s's killing spree ended (^7%d kills^%s).",
                                                         m_name, kspree_color, killing_sprees[id], kspree_color))
                     sayClients(kspree_pos, "^"..kspree_color.."This is a new map record !^7")
@@ -548,63 +546,60 @@ function checkKSpreeEnd(id, killer, normal_kill)
 end
 
 function checkKSprees(id)
-    if killing_sprees[id] ~= 0 then
-        if (killing_sprees[id] % 5) == 0 then
-            local spree_id = killing_sprees[id]
-            local spree = K_Sprees[killing_sprees[id]]
-            if killing_sprees[id] > 35 then
-                spree = K_Sprees[35]
-            end
-            if spree == nil then
-                spree = "is on a Killing spree"
-                et.G_Printf("kspree: Killing spree = nil\n")
-            end
+    if killing_sprees[id] == 0 then return end
+    if (killing_sprees[id] % 5) ~= 0 then return end
 
-        if spree_id == 5 then
-        	if killingspree_private and client_msg[id] then
-        		local craap = string.format("%s ^%s: You are on a killing spree! (^75 kills in a row^%s)",
-        					playerName(id), kspree_color, kspree_color)
-            	et.trap_SendServerCommand( id, "cp \" "..craap.." \"\n")
-            	--et.G_Sound( id ,  et.G_SoundIndex("sound/misc/killingspree.wav"))
-            	et.G_ClientSound(id, killingspreesound)
-            else
-            	sayClients(kspree_pos, string.format("%s^%s %s (^7%d kills in a row^%s)",
-           		playerName(id), kspree_color, spree, killing_sprees[id], kspree_color))
-           		if kspree_sound then
-           			soundClients(killingspreesound)
-           			--et.G_globalSound(killingspreesound)
-           		end
-            end
-        else
-           	sayClients(kspree_pos, string.format("%s^%s %s (^7%d kills in a row^%s)",
-           		playerName(id), kspree_color, spree, killing_sprees[id], kspree_color))
-           	if spree_id == 10 and kspree_sound then
-                --et.G_globalSound(rampagesound)
-                soundClients(rampagesound)
+    local spree_id = killing_sprees[id]
+    local spree = K_Sprees[killing_sprees[id]]
 
-            elseif spree_id == 15 and kspree_sound then
-                --et.G_globalSound(dominatingsound)
-                soundClients(dominatingsound)
-
-            elseif spree_id == 20 and kspree_sound then
-                --et.G_globalSound(unstoppablesound)
-                soundClients(unstoppablesound)
-
-            elseif spree_id == 25 and kspree_sound then
-                --et.G_globalSound(godlikesound)
-                soundClients(godlikesound)
-
-            elseif spree_id == 30 and kspree_sound then
-                --et.G_globalSound(wickedsicksound)
-                soundClients(wickedsicksound)
-
-            elseif spree_id == 35 and kspree_sound then
-                --et.G_globalSound(pottersound)
-                soundClients(pottersound)
-            end
-        end --spree_id == 5
-        end
+    if spree == nil then
+        spree = "is on a Killing spree"
+        et.G_Printf("KSpree: Killing spree = nil\n")
     end
+
+    if spree_id == 5 then
+        if killingspree_private and client_msg[id] then
+            local craap = string.format("%s ^%s: You are on a killing spree! (^75 kills in a row^%s)",
+                                        playerName(id), kspree_color, kspree_color)
+            et.trap_SendServerCommand( id, "cp \" "..craap.." \"\n")
+            --et.G_Sound( id ,  et.G_SoundIndex("sound/misc/killingspree.wav"))
+            et.G_ClientSound(id, killingspreesound)
+        else
+            sayClients(kspree_pos, string.format("%s^%s %s (^7%d kills in a row^%s)",
+            playerName(id), kspree_color, spree, killing_sprees[id], kspree_color))
+            if kspree_sound then
+                soundClients(killingspreesound)
+                --et.G_globalSound(killingspreesound)
+            end
+        end
+    else
+        sayClients(kspree_pos, string.format("%s^%s %s (^7%d kills in a row^%s)",
+            playerName(id), kspree_color, spree, killing_sprees[id], kspree_color))
+        if spree_id == 10 and kspree_sound then
+            --et.G_globalSound(rampagesound)
+            soundClients(rampagesound)
+
+        elseif spree_id == 15 and kspree_sound then
+            --et.G_globalSound(dominatingsound)
+            soundClients(dominatingsound)
+
+        elseif spree_id == 20 and kspree_sound then
+            --et.G_globalSound(unstoppablesound)
+            soundClients(unstoppablesound)
+
+        elseif spree_id == 25 and kspree_sound then
+            --et.G_globalSound(godlikesound)
+            soundClients(godlikesound)
+
+        elseif spree_id == 30 and kspree_sound then
+            --et.G_globalSound(wickedsicksound)
+            soundClients(wickedsicksound)
+
+        elseif spree_id == 35 and kspree_sound then
+            --et.G_globalSound(pottersound)
+            soundClients(pottersound)
+        end
+    end --endif spree_id
 end
 
 function et_RunFrame(levelTime)
@@ -694,7 +689,7 @@ function et_RunFrame(levelTime)
          	end
          	wait_table[id] = nil
          end
-    end --end table.foreach
+    end --end for
     end -- gamestate
 end
 
@@ -807,7 +802,7 @@ function et_ClientCommand(id, command)
 				local ppos = et.gentity_get(id,"r.currentOrigin")
 				local TKer_team = et.gentity_get(id, "sess.sessionTeam")
 				local cmd = string.format("vtchat 0 %d 50 Sorry %d %d %d %d \"%s\"", id, ppos[1], ppos[2], ppos[3], math.random(1,3), vsaymessage)
-				for t=0, sv_maxclients-1, 1 do
+				for t=0, maxclients-1, 1 do
         			if et.gentity_get(t, "sess.sessionTeam") == TKer_team then
 				   		et.trap_SendServerCommand(t, cmd)
         			end
@@ -976,7 +971,7 @@ end
 function add_qwnage(id, woot)
 	local fdqwnage,len = et.trap_FS_FOpenFile( "awards.txt", et.FS_APPEND )
 	if len == -1 then
-                    et.G_Printf("kspree.lua: failed to save awards for %s\n", playerName(id))
+                    et.G_Printf("KSpree: failed to save awards for %s\n", playerName(id))
     else
 		if woot == 1 then
 			qwnage = playerName(id).. " - Ludicrous Kill - "..os.date().."\n"
@@ -996,7 +991,7 @@ function et_ConsoleCommand()
     local i = 0
     if cmd == "ksprees" then
         et.G_Printf("ksprees: --------------------\n")
-        for i=0, sv_maxclients-1 do
+        for i=0, maxclients-1 do
 
             if killing_sprees[i] ~= nil and killing_sprees[i] ~= 0 then
                 et.G_Printf("^7ksprees: %d %s^7 (%s)^7\n",
