@@ -11,21 +11,9 @@ version = "1.0.4"
 -- CONSOLE COMMANDS : ksprees, kspeesall, kspreerecords
 -- added: new readRecords() function
 -- added: First Blood + Last Blood
--- added: Greatshot option, display last killers name v56
--- added: Sorry option, display last TKed's name v45
 -- added: spree announcement can be disabled
 -- FIXME: recordMessage() does not work everytime -- FIXED !!!
 -- FIXME: use wait_table[id] ~= nil --FIXED mmmhhh :/ ???
---
--- If you run etadmin_mod, change the following lines in "etadmin.cfg"
---			spree_detector 					= 0
---			longest_spree_display			= 0
---			persistent_spree_record 		= 0
---			persistent_map_spree_record 	= 0
---			first_blood						= 0
---			multikill_detector				= 0
---			monsterkill_detector			= 0
---			last_blood						= 0
 --
 -------------------------------------------------------------------------------------
 -------------------------------CONFIG START------------------------------------------
@@ -91,14 +79,6 @@ records_expire		= 60*60*24*5  	-- in seconds! 60*60*24*5 == 5 days
 
 allow_spree_sk		= false			-- allow new killing spree record, even if he killed himself
 
-great_shot 			= true			-- name of ur killer will be added if u vsay "GreatShot" within "great_shot_time" ms
-great_shot_time 	= 5000			-- 5000 = 5 seconds = Five SECONDS
-great_shot_repeat 	= false			-- set to true, name will be added everytime u vsay Greatshot within "great_shot_time" ms
-
-sorry				= true			-- name of ur last tk will be added if u vsay_team "Sorry" within "sorry_time" ms
-sorry_time			= 9000			-- 9000 = 9 seconds = Nine SECONDS
-sorry_repeat		= false			-- set to true, name will be added everytime u vsay_team "sorry" within "sorry_time" ms
-
 save_awards = true					-- save Ludicrouskill + Holy Shit + Multi TK in textfile "awards_file"
 awards_file = "awards.txt"
 
@@ -134,8 +114,6 @@ kendofmap      = false
 keomap_done    = false
 gamestate		= -1
 last_b		= ""
-last_killer	= {}
-last_tk	= {}
 client_msg = {}
 
 kteams = { [0]="Spectator", [1]="Axis", [2]="Allies", [3]="Unknown", }
@@ -434,10 +412,6 @@ function et_Obituary(victim, killer, mod)
     		checkMultiTk(killer)
     	end
 
-		if sorry then
-		   last_tk[killer]	= {playerName(victim) , et.trap_Milliseconds()}
-		end
-
         checkKSpreeEnd(victim, killer, false)
         killing_sprees[victim] = 0
 
@@ -464,10 +438,6 @@ function et_Obituary(victim, killer, mod)
             if killing_sprees[killer] > kmax_spree then
                 kmax_spree = killing_sprees[killer]
                 kmax_id    = killer
-            end
-
-            if great_shot then
-            	last_killer[victim] = { playerName(killer), et.trap_Milliseconds() }
             end
 
             if first_blood then
@@ -700,12 +670,7 @@ end
 function et_ClientDisconnect(id)
     killing_sprees[id] = 0
     client_msg[id] = false
-    if great_shot and last_killer[id] ~= nil then
-    	last_killer[id] = nil
-    end
-	if sorry and last_tk[id] ~= nil then
-		last_tk[id] = nil
-	end
+
     if wait_table[id] ~= nil then
     	wait_table[id] = nil
     end
@@ -773,51 +738,6 @@ function et_ClientCommand(id, command)
         end
         return(1)
     end
-
-	if et.trap_Argv(0) == "vsay" then
-		if not great_shot then return end
-		local vsaystring = ParseString(et.trap_Argv(1))		
-		if #(vsaystring) < 2 and last_killer[id] ~= nil and string.lower(vsaystring[1]) == "greatshot" then
-			if (et.trap_Milliseconds() - tonumber(last_killer[id][2])) < great_shot_time then
-				local vsaymessage = "Great shot, ^7"..last_killer[id][1].."^r!"
-
-   				et.trap_SendServerCommand(-1, "vchat 0 "..id.." 50 GreatShot "..math.random(1, 2).." \""..vsaymessage.."\"")
-   				if not great_shot_repeat then
-   					last_killer[id] = nil
-   				end
-				return(1)
-			else
-    			return(0)
-			end
-
-    	end -- end lower
-    end -- vsay
-
-	if et.trap_Argv(0) == "vsay_team" then
-		if not sorry then return end
-		local vsaystring = ParseString(et.trap_Argv(1))		
-		if #(vsaystring) < 2 and last_tk[id] ~= nil and string.lower(vsaystring[1]) == "sorry" then
-			if (et.trap_Milliseconds() - tonumber(last_tk[id][2])) < sorry_time then
-			    local vsaymessage = "^5Sorry, ^7"..last_tk[id][1].."^5!"
-				local ppos = et.gentity_get(id,"r.currentOrigin")
-				local TKer_team = et.gentity_get(id, "sess.sessionTeam")
-				local cmd = string.format("vtchat 0 %d 50 Sorry %d %d %d %d \"%s\"", id, ppos[1], ppos[2], ppos[3], math.random(1,3), vsaymessage)
-				for t=0, maxclients-1, 1 do
-        			if et.gentity_get(t, "sess.sessionTeam") == TKer_team then
-				   		et.trap_SendServerCommand(t, cmd)
-        			end
-    			end
-				if not sorry_repeat then
-   					last_tk[id] = nil
-   				end
-
-				return(1)
-			else
-    			return(0)
-			end
-
-    		end -- end lower
-    end -- vsay_team
 
     return(0)
 end
