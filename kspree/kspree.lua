@@ -45,10 +45,10 @@ kspree_sound		= true			-- spree-sounds
 first_blood			= true			-- display First Blood
 last_blood			= true			-- display Last Blood
 
-kmulti_pos      	= "b 8"			-- multi + megakill - position
-kmonster_pos    	= "b 32"		-- ultra + monster + ludicrous + holy shit - position
-kmultitk_pos		= "b 32"		-- multi TK - position
-kspree_pos    		= "b 8"			-- killing spree position
+kmulti_pos      	= "cp"			-- multi + megakill - position
+kmonster_pos    	= "cp"		-- ultra + monster + ludicrous + holy shit - position
+kmultitk_pos		= "cp"		-- multi TK - position
+kspree_pos    		= "cp"			-- killing spree position
 kspree_color  		= "8"			-- killing spree color
 
 kmulti_msg      	= "^7!!!! ^1Multi kill ^7> ^7%s ^7< ^1Multi kill^7 !!!!"
@@ -549,7 +549,7 @@ end
 
 function checkKSprees(id)
     if killing_sprees[id] ~= 0 then
-        if math.fmod(killing_sprees[id], 5) == 0 then
+        if (killing_sprees[id] % 5) == 0 then
             local spree_id = killing_sprees[id]
             local spree = K_Sprees[killing_sprees[id]]
             if killing_sprees[id] > 35 then
@@ -564,7 +564,7 @@ function checkKSprees(id)
         	if killingspree_private and client_msg[id] then
         		local craap = string.format("%s ^%s: You are on a killing spree! (^75 kills in a row^%s)",
         					playerName(id), kspree_color, kspree_color)
-            	et.trap_SendServerCommand( id, "b 8 \" "..craap.." \"\n")
+            	et.trap_SendServerCommand( id, "cp \" "..craap.." \"\n")
             	--et.G_Sound( id ,  et.G_SoundIndex("sound/misc/killingspree.wav"))
             	et.G_ClientSound(id, killingspreesound)
             else
@@ -608,7 +608,7 @@ function checkKSprees(id)
 end
 
 function et_RunFrame(levelTime)
-	if math.fmod(levelTime, 500) ~= 0 then return end
+	if (levelTime % 500) ~= 0 then return end
 	local ltm = et.trap_Milliseconds()
 	gamestate = tonumber(et.trap_Cvar_Get("gamestate"))
 	if gamestate == 0 then
@@ -753,7 +753,7 @@ function et_ClientCommand(id, command)
 	    	et.trap_SendConsoleCommand(et.EXEC_APPEND, "qsay \"^3stats: ^7"..stats_msg.."^7\"\n")
 	    elseif et.trap_Argv(1) == statsme_cmd and srv_record then
 	    	local statsme_msg = statsMessage(id)
-	    	et.trap_SendServerCommand( id, "b 8 \"^3statsme: ^7"..statsme_msg.." ^7\"\n")
+	    	et.trap_SendServerCommand( id, "cp \"^3statsme: ^7"..statsme_msg.." ^7\"\n")
 	    	return(1)
 		end -- end elseif...
     end -- et.trap_Argv(0) == "say"
@@ -765,16 +765,16 @@ function et_ClientCommand(id, command)
                 status = "^8off^7"
             end
             et.trap_SendServerCommand(id,
-                    string.format("b 8 \"^#(ksprees):^7 Messages are %s\"",
+                    string.format("cp \"^#(ksprees):^7 Messages are %s\"",
                             status))
         elseif tonumber(et.trap_Argv(1)) == 0 then
             setKSpreeMsg(id, false)
             et.trap_SendServerCommand(id,
-                    "b 8 \"^#(ksprees):^7 Messages are now ^8off^7\"")
+                    "cp \"^#(ksprees):^7 Messages are now ^8off^7\"")
         else
             setKSpreeMsg(id, true)
             et.trap_SendServerCommand(id,
-                    "b 8 \"^#(ksprees):^7 Messages are now ^8on^7\"")
+                    "cp \"^#(ksprees):^7 Messages are now ^8on^7\"")
         end
         return(1)
     end
